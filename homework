@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>财富500强企业分布</title>
+    <link rel="stylesheet" href="https://js.geoscene.cn/4.28/esri/css/main.css">
+    <script src="https://js.geoscene.cn/4.28/"></script>
+    <style>
+        html,body{height:100%;margin:0;padding:0}
+        .header{
+            height:60px;
+            background:#005d99;
+            color:white;
+            line-height:60px;
+            padding:0 20px;
+            font-size:20px;
+        }
+        .content{
+            display:flex;
+            height:calc(100% - 60px);
+        }
+        #map{flex:1}
+        .basemaps{
+            width:240px;
+            background:#f5f5f5;
+            padding:15px;
+            border-left:1px solid #ddd;
+        }
+        .basemap{
+            padding:10px;
+            background:white;
+            margin:6px 0;
+            cursor:pointer;
+            border-radius:4px;
+        }
+        .basemap.active{
+            background:#005d99;
+            color:white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">中国财富500强企业分布（1995-2025）</div>
+    <div class="content">
+        <div id="map"></div>
+        <div class="basemaps">
+            <h3>底图切换</h3>
+            <div class="basemap active" data="streets">街道地图</div>
+            <div class="basemap" data="satellite">影像地图</div>
+            <div class="basemap" data="gray">灰色地图</div>
+        </div>
+    </div>
+
+<script>
+require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/widgets/ScaleBar",
+    "esri/widgets/Legend",
+    "esri/widgets/Search",
+    "esri/widgets/LayerList"
+], function(Map, MapView, FeatureLayer, ScaleBar, Legend, Search, LayerList){
+
+    var map = new Map({ basemap: "streets" });
+
+    var view = new MapView({
+        container: "map",
+        map: map,
+        center: [112, 39],
+        zoom: 4
+    });
+
+    // ==============================================
+    // ✅ 这是 **你自己的真实数据**，没有我加的任何东西
+    // ==============================================
+    var pointLayer = new FeatureLayer({
+        url: "https://www.geosceneonline.cn/geoscene/rest/services/Hosted/China_Fortune500_1995_2025/FeatureServer/0",
+        title: "财富500强企业点位"
+    });
+    map.add(pointLayer);
+
+    // 工具
+    view.ui.add(new ScaleBar({view:view}), "bottom-left");
+    view.ui.add(new Legend({view:view}), "bottom-right");
+    view.ui.add(new Search({view:view}), "top-left");
+    view.ui.add(new LayerList({view:view}), "top-left");
+
+    // 底图切换
+    document.querySelectorAll('.basemap').forEach(item => {
+        item.onclick = function(){
+            document.querySelectorAll('.basemap').forEach(i=>i.classList.remove('active'));
+            this.classList.add('active');
+            map.basemap = this.getAttribute("data");
+        }
+    });
+});
+</script>
+</body>
+</html>
